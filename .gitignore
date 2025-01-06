@@ -1,0 +1,15 @@
+.vs
+.vscode
+.vsconfig
+Saved
+DerivedDataCache
+Binaries
+Intermediate
+backup
+ZZX/*
+
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+HoudiniLib/*/otls/backup
