@@ -31,7 +31,7 @@ public class NvWaEditor : ModuleRules
                 "NvWa",
                 "UnrealEd",
                 "AssetDefinition",
-                "AssetTools", "AnimationEditor", "NvWa", "EditorSubsystem", "SkeletonEditor", "Persona"
+                "AssetTools", "AnimationEditor", "NvWa", "EditorSubsystem", "SkeletonEditor", "Persona", "AnimGraph"
             }
         );
     }

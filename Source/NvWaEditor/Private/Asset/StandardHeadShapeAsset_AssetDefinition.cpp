@@ -68,35 +68,6 @@ void FStandardHeadShapeTypeActions::OpenAssetEditor(const TArray<UObject*>& InOb
 		if (UStandardShapeBase* StandardShape = Cast<UStandardShapeBase>(InObject))
 		{
 			FAssetTypeActions_AnimationAsset::OpenAssetEditor(InObjects, EditWithinLevelEditor);
-
-			// Find the anim editors that are doing it
-			TArray<IAssetEditorInstance*> AssetEditors;
-#if WITH_EDITOR
-			AssetEditors = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->FindEditorsForAsset(StandardShape);
-#endif
-			for (IAssetEditorInstance* ExistingEditor : AssetEditors)
-			{
-				if (ExistingEditor->GetEditorName() == FName("AnimationEditor"))
-				{
-					// Change the current anim to this one
-					IAnimationEditor* AnimEditor = static_cast<IAnimationEditor*>(ExistingEditor);
-					UStandardShapeEditorSubSystem::Get()->RegisterEditor(StandardShape, AnimEditor);
-					const auto AnimationEditor = static_cast<FAnimationEditor*>(AnimEditor);
-					TSharedRef<ISkeletonTree> SkeletonTree = AnimationEditor->GetSkeletonTree();
-					const TSharedRef<SSkeletonTree> Tree = StaticCastSharedRef<SSkeletonTree>(SkeletonTree);
-					TSharedRef<FPersonaToolkit> PersonaToolkit = StaticCastSharedRef<FPersonaToolkit>(AnimationEditor->GetPersonaToolkit());
-					//Tree->RegisterOnSelectionChanged(FOnSkeletonTreeSelectionChanged::CreateUObject(UStandardShapeEditorSubSystem::Get(), &UStandardShapeEditorSubSystem::HandleSelectionChanged));
-					Tree->GetSelectedItems()
-					// Tree->Refresh()
-					// if(AnimEditor->GetPersonaToolkit()->GetSkeleton() == AnimAsset->GetSkeleton())
-					// {
-					// 	AnimEditor->SetAnimationAsset(AnimAsset);
-					// 	AnimEditor->FocusWindow();
-					// 	bFoundEditor = true;
-					// 	break;
-					// }
-				}
-			}
 		}
 	}
 }

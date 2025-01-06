@@ -1,20 +1,37 @@
-
-
 #include "StandardShape/StandardShapeBase.h"
-
+UStandardShapeBase::UStandardShapeBase()
+{
+	AdditiveAnimType = AAT_LocalSpaceBase;
+}
 bool UStandardShapeBase::IsValidAdditive() const
 {
 	return true;	
 }
-
+#if WITH_EDITORONLY_DATA
+void UStandardShapeBase::AppendControlledBoneEntries(const FControlledBoneEntry& BoneEntry)
+{
+	FString Key = BoneEntry.Name.ToString() + FString::FromInt(BoneEntry.Index);
+	if (int32* Id = ControlledBoneEntryKeys.Find(Key))
+	{
+		ControlledBoneEntries[*Id] = BoneEntry;
+	}
+	else
+	{
+		FControlledBoneEntry& NewControlledBoneEntry = ControlledBoneEntries.Emplace_GetRef(BoneEntry.Name, BoneEntry.Index, BoneEntry.Transform);
+		ControlledBoneEntryKeys.Add(Key, ControlledBoneEntries.Num() - 1);
+	}
+}
+#endif
 void UStandardShapeBase::GetAnimationPose(FAnimationPoseData& OutPoseData, const FAnimExtractContext& ExtractionContext) const
 {
+	Super::GetAnimationPose(OutPoseData, ExtractionContext);
 	if (!IsValidAdditive()) return;
 
 	for (auto& ControlledBoneEntry : ControlledBoneEntries)
 	{
+		if (ModifiedBoneNames.Find(ControlledBoneEntry.Name) != INDEX_NONE) continue;
+		
 		FCompactPose& OutPose = OutPoseData.GetPose();
-		// FBoneContainer& BoneContainer = OutPose.GetBoneContainer();
 		if (ControlledBoneEntry.Index < OutPose.GetNumBones())
 		{
 			FCompactPoseBoneIndex ControlledPoseBoneIndex(ControlledBoneEntry.Index);
@@ -33,33 +50,7 @@ FFrameRate UStandardShapeBase::GetSamplingFrameRate() const
 	return FFrameRate(30, 1);
 }
 
-void UStandardShapeBase::UpdateControlledBoneEntries()
+const TArray<FControlledBoneEntry>& UStandardShapeBase::GetControlledBones()
 {
-	const FReferenceSkeleton& ReferenceSkeleton = GetSkeleton()->GetReferenceSkeleton();
-	const TArray<FTransform>& RefBonePose = ReferenceSkeleton.GetRefBonePose();
-	const TArray<FTransform>& RefRawBonePose = ReferenceSkeleton.GetRawRefBonePose();
-	//ReferenceSkeleton.GetRawRefBonePose()
-	const auto& AnimDataModel = GetDataModel();
-	//获取所有的骨骼点
-	TArray<FName> AnimBoneTrackNames;
-	AnimDataModel->GetBoneTrackNames(AnimBoneTrackNames);
-	//获取所有的骨骼的变换
-	TArray<FTransform> AnimBoneTrackTransforms;
-	AnimDataModel->GetBoneTracksTransform(AnimBoneTrackNames, FFrameNumber(), AnimBoneTrackTransforms);
-
-	// for (const auto& AnimBoneName : AnimBoneTrackNames)
-	for (int32 Index = 0; Index < RefBonePose.Num(); Index++)
-	{
-		FName AnimBoneName = ReferenceSkeleton.GetBoneName(Index);
-		int32 BoneIndex = ReferenceSkeleton.FindBoneIndex(AnimBoneName);
-		if (RefBonePose[BoneIndex].GetScale3D().Y == 2.0)
-		{
-			ControlledBoneEntries.Emplace(AnimBoneTrackNames[BoneIndex], BoneIndex, AnimBoneTrackTransforms[BoneIndex]);
-		}
-		if (!RefBonePose[BoneIndex].Equals(RefRawBonePose[BoneIndex]))
-		{
-			ControlledBoneEntries.Emplace(AnimBoneTrackNames[BoneIndex], BoneIndex, AnimBoneTrackTransforms[BoneIndex]);
-		}
-	}
+	return ControlledBoneEntries;	
 }
-

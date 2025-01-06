@@ -9,6 +9,10 @@ UStandardHeadShapeAsset_Factory::UStandardHeadShapeAsset_Factory()
 
 UObject* UStandardHeadShapeAsset_Factory::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
 {
+	UStandardHeadShape* HeadShape = NewObject<UStandardHeadShape>(InParent, Class, Name, Flags, Context);
+	HeadShape->GetController().InitializeModel();
+	HeadShape->GetController().SetNumberOfFrames(1);
+	HeadShape->GetController().NotifyPopulated();
 	return NewObject<UStandardHeadShape>(InParent, Class, Name, Flags, Context);
 }
 

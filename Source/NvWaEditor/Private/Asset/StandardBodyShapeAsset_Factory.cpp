@@ -10,5 +10,9 @@ UStandardBodyShapeAsset_Factory::UStandardBodyShapeAsset_Factory()
 
 UObject* UStandardBodyShapeAsset_Factory::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
 {
-	return NewObject<UStandardBodyShape>(InParent, Class, Name, Flags, Context);
+	UStandardBodyShape* BodyShape = NewObject<UStandardBodyShape>(InParent, Class, Name, Flags, Context);
+	BodyShape->GetController().InitializeModel();
+	BodyShape->GetController().SetNumberOfFrames(1);
+	BodyShape->GetController().NotifyPopulated();
+	return BodyShape;
 }
