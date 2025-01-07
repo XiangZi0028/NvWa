@@ -40,6 +40,12 @@ static void AppendControlledBone(TArray<TSharedPtr<ISkeletonTreeItem>> Controlle
 					BoneEntry.Transform = Transform;
 					StandardShapeBase->AppendControlledBoneEntries(BoneEntry);
 					BoneProxy->ResetToDefault(ESlateTransformComponent::Type::Max , UBoneProxy::ETransformType::TransformType_Bone);
+					BoneProxy->Location = FVector(0);
+					BoneProxy->Rotation = FRotator(0);
+					BoneProxy->Scale = FVector(1);
+					BoneProxy->PreviousLocation = FVector(0);
+					BoneProxy->PreviousRotation = FRotator(0);
+					BoneProxy->PreviousScale = FVector(1);
 					AnimInstance->RemoveBoneModification(BoneProxy->BoneName);
 				}
 			}
@@ -107,6 +113,10 @@ void UStandardShapeEditorSubSystem::HandleSelectionChanged(const TArrayView<TSha
 				BoneProxy->Location = ControlledBone.Transform.GetLocation();
 				BoneProxy->Rotation = ControlledBone.Transform.GetRotation().Rotator();
 				BoneProxy->Scale = ControlledBone.Transform.GetScale3D();
+				FAnimNode_ModifyBone& ModifyBone = TreeItem->GetSkeletonTree()->GetPreviewScene()->GetPreviewMeshComponent()->PreviewInstance->ModifyBone(BoneProxy->BoneName);
+				ModifyBone.Translation = BoneProxy->Location;
+				ModifyBone.Rotation = BoneProxy->Rotation; 
+				ModifyBone.Scale = BoneProxy->Scale; 
 				break;
 			}
 		}
